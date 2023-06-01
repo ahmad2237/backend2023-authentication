@@ -2,9 +2,10 @@ const app = require("./app");
 const http = require("http");
 const mongoose = require("mongoose");
 let server;
-let port = 4000;
+// require("dotenv").config();
+let PORT = 5000;
 //database connection
-// 
+//
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/test")
@@ -12,8 +13,8 @@ mongoose
     console.log("Connected!");
     server = http.createServer(app);
 
-    server.listen(process.env.PORT || 4000, () => {
-      console.log(`Server listening at http://localhost:${port}`);
+    server.listen(process.env.PORT || 5000, () => {
+      console.log(`Server listening at http://localhost:${PORT}`);
     });
   })
   .catch((e) => {
