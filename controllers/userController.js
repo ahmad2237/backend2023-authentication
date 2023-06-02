@@ -1,10 +1,5 @@
-// const express = require("express");
-const User = require("../models/User.js");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-// const { forgotPassword } = require("../services/userServices.js");
 const { userService } = require("../services/index.js");
-const { forgotPassword } = require("../services/userServices.js");
+
 require("dotenv").config();
 class UserController {
   static userRegistration = async (req, res) => {
@@ -22,7 +17,7 @@ class UserController {
       const user = await userService.login(email, password);
       res.status(200).send({ massege: "Login successfull", user });
     } catch (error) {
-      console.log(error);
+      console.error(error);
       res.status(401).send({ message: "Login failed" });
     }
   };
@@ -31,8 +26,8 @@ class UserController {
     const { email } = req.body;
     try {
       if (email) {
-        const resetToken = await forgotPassword(email);
-        console.log(resetToken);
+        await userService.forgotPassword(email);
+
         // const user = await User.findOne({ email: email });
         // if (user) {
         //   const secret = user._id + process.env.JWT_SECRET_KEY;
@@ -56,43 +51,24 @@ class UserController {
   };
 
   static userPasswordReset = async (req, res) => {
-    // const { password, password_confirmation } = req.body;
-    // const { id, token } = req.params;
-
-    // const user = await User.findById(id);
-    // const secret_key = user._id + process.env.JWT_SECRET_KEY;
-    // try {
-    //   jwt.verify(token, secret_key);
-    //   if (password && password_confirmation) {
-    //     if (password !== password_confirmation) {
-    //       res.send({
-    //         massege: "new password and confirm new password dont match",
-    //       });
-    //     } else {
-    //       const salt = await bcrypt.genSalt(10);
-    //       const newHashPassword = await bcrypt.hash(password, salt);
-    //       await User.findByIdAndUpdate(user._id, {
-    //         $set: { password: newHashPassword },
-    //       });
-    //       res.status(201).send({
-    //         status: "success",
-    //         massege: "password reset successfully",
-    //       });
-    //     }
-    //   } else {
-    //     res.send("all fields are required");
-    //   }
-    // } catch (err) {
-    //   res.send({ status: "failed", massege: err });
-    // }
-
+    const { password, password_confirmation } = req.body;
+    const { id, token } = req.params;
+    await userService.resetPassword(id, token, password, password_confirmation);
     try {
-      await resetPassword(password, password_confirmation);
       res.status(200).json({
         massege: "password reset successfully",
       });
     } catch (err) {
       res.status().send({ massege: "Invalid or expire reset token" });
+    }
+  };
+
+  //get all users //
+  static getAllUsers = async (req, res) => {
+    try {
+      userService.getUsers(res);
+    } catch (err) {
+      res.status(400).json({ massage: "users not find" });
     }
   };
 }

@@ -4,8 +4,11 @@ const userController = require("../controllers/userController.js");
 
 //public route
 router.post("/register", userController.userRegistration);
+
 router.post("/login", userController.userLogin);
 router.post("/send-reset-password-email", userController.forgetPassword);
-router.post("/reset-password/:id/:token", userController.userPasswordReset);
-// protected route
+router.post("/resetPassword/:id/:token", userController.userPasswordReset);
+
+router.get("/getUsers", userController.getAllUsers);
+
 module.exports = router;

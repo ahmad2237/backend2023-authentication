@@ -46,7 +46,6 @@ const login = async (email, password) => {
   if (email && password) {
     const user = await User.findOne({ email: email });
     if (user != null) {
-      console.log("user!=null=>", user != null);
       const isMatch = await bcrypt.compare(password, user.password);
       if (user.email === email && isMatch) {
         // Generate JWT Token
@@ -77,18 +76,17 @@ const forgotPassword = async (email) => {
       expiresIn: "15m",
     });
     const link = `http://localhost:8000/api/user/secret/${user._id}/${token}`;
-    console.log(link);
-    res.status(201).send({
-      status: "success",
-      massege: "password email sent... please check you email ",
-    });
+    if (link) {
+      console.log(link);
+      res.status(200).send({ message: "success" });
+    }
   }
 };
 
-const resetPassword = async (password, password_confirmation) => {
-  const { id, token } = req.params;
+const resetPassword = async (id, token, password, password_confirmation) => {
+  const user = await User.findById(String(id));
+  console.log("user--->", user);
 
-  const user = await User.findById(id);
   const secret_key = user._id + process.env.JWT_SECRET_KEY;
   try {
     jwt.verify(token, secret_key);
@@ -101,7 +99,7 @@ const resetPassword = async (password, password_confirmation) => {
         await User.findByIdAndUpdate(user._id, {
           $set: { password: newHashPassword },
         });
-        res.status(201).send({
+        res.status(200).send({
           status: "success",
           massege: "password reset successfully",
         });
@@ -110,8 +108,22 @@ const resetPassword = async (password, password_confirmation) => {
       throw new error("all fields are required");
     }
   } catch (err) {
-    throw new error("error", err);
+    console.log("err", err);
+  }
+};
+//get all users//
+const getUsers = async (res) => {
+  console.log("res=>", res);
+  const users = await User.find({});
+  if (users) {
+    res.json(users);
   }
 };
 
-module.exports = { registerUser, login, forgotPassword, resetPassword };
+module.exports = {
+  registerUser,
+  login,
+  forgotPassword,
+  resetPassword,
+  getUsers,
+};
