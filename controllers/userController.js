@@ -1,5 +1,6 @@
 const { userService } = require("../services/index.js");
 
+
 require("dotenv").config();
 class UserController {
   static userRegistration = async (req, res) => {
@@ -66,11 +67,52 @@ class UserController {
   //get all users //
   static getAllUsers = async (req, res) => {
     try {
-      userService.getUsers(res);
+      await userService.getUsers(res);
     } catch (err) {
       res.status(400).json({ massage: "users not find" });
     }
   };
+  static getUserById = async (req, res) => {
+    try {
+      const { id } = req.params;
+      let user = await userService.UserById(id);
+      res.status(200).json({ massege: "user find successfully", user: user });
+    } catch (error) {
+      res.status(404).json({ massege: "user not found" });
+    }
+  };
+
+  static getUserByEmail = async (req, res) => {
+    try {
+      const { email } = req.params;
+      const userByEmail = await userService.findByEmail(email);
+      console.log("userByEmail=>", userByEmail);
+      if (userByEmail) {
+        res
+          .status(200)
+          .json({ massege: "user find successfully", user: userByEmail });
+      } else {
+        res.status(404).json({ massege: "user not exist with this email" });
+      }
+    } catch (err) {
+      res.status(404).json({ massege: "user not found", error: err });
+    }
+  };
+
+  static getUserByName = async (req, res) => {
+    const { name } = req.params;
+
+    try {
+      const user = await userService.findByName(name);
+      console.log("user=>", name);
+      return res.json(user);
+    } catch (error) {
+      console.log(err);
+      res.status(500).json({ massege: "user is not found" });
+    }
+  };
+
+
 }
 
 module.exports = UserController;

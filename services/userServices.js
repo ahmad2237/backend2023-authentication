@@ -1,6 +1,7 @@
 const User = require("../models/User.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { userService } = require("./index.js");
 require("dotenv").config();
 
 const registerUser = async (body) => {
@@ -119,6 +120,33 @@ const getUsers = async (res) => {
     res.json(users);
   }
 };
+const UserById = async (params) => {
+  // console.log("params=>", params);
+  let user = await User.findById(params);
+  console.log("user=>", user);
+  if (user) {
+    return user;
+  }
+};
+const findByEmail = async (email) => {
+  try {
+    let user = await User.findOne({ email });
+    if (user) {
+      return user;
+    }
+  } catch (error) {
+    throw new error("user by email is not found ");
+  }
+};
+
+const findByName = async (name) => {
+  try {
+    const users = await User.find({ name });
+    return users;
+  } catch (error) {
+    throw new error("user is not exist");
+  }
+};
 
 module.exports = {
   registerUser,
@@ -126,4 +154,7 @@ module.exports = {
   forgotPassword,
   resetPassword,
   getUsers,
+  UserById,
+  findByEmail,
+  findByName,
 };
